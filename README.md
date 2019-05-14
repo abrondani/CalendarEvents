@@ -13,3 +13,5 @@ Page size can be modified in the web.config file.
 Token is stored in cache.
 
 Unit test for API methods.
+
+No further actions required to see the web site.
