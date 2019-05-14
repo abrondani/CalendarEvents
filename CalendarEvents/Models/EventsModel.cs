@@ -3,13 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Configuration;
-using System.Web.Script.Serialization;
 
-namespace WebApplication6.Models
+namespace CalendarEvents.Models
 {
-    public class events_model : event_base
+    public class EventsModel : EventBase
     {
-        public events_model()
+        public EventsModel()
         {
             page_size = int.Parse(ConfigurationManager.AppSettings["PageSize"]);
         }
@@ -20,23 +19,23 @@ namespace WebApplication6.Models
 
         public int page { get; set; }
 
-        public List<event_model> items { get; set; }
+        public List<EventModel> items { get; set; }
     }
 
-    public class event_model : event_base
+    public class EventModel : EventBase
     {
         public Guid id { get; set; }
 
-        [Required, Display(Name = "Title")]
+        [Required(ErrorMessage = "Title is required"), Display(Name = "Title")]
         public string title { get; set; }
 
-        [Required, Display(Name = "Description")]
+        [Required(ErrorMessage = "Description is required"), Display(Name = "Description")]
         public string description { get; set; }
 
-        [Required, Display(Name = "Start Date")]
+        [Required(ErrorMessage = "Start Date is required"), Display(Name = "Start Date")]
         public string startDate { get; set; }
 
-        [Required, Display(Name = "End Date")]
+        [Required(ErrorMessage = "End Date is required"), Display(Name = "End Date")]
         public string endDate { get; set; }
 
         [JsonIgnore]

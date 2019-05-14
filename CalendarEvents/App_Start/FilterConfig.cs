@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace WebApplication6
+namespace CalendarEvents
 {
     public class FilterConfig
     {

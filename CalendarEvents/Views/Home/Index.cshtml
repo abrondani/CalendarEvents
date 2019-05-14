@@ -1,61 +1,61 @@
-﻿@model WebApplication6.Models.events_model
+﻿@model CalendarEvents.Models.EventsModel
 
-@{
-    ViewBag.Title = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+    @{
+        ViewBag.Title = "Index";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
 
-<nav class="navbar navbar-light bg-light">
-    @Html.ActionLink("Calendar Events", "Index", null, new { @class = "navbar-brand" })
-    <form class="form-inline">
-        @Html.ActionLink("New", "Create", null, new { @class = "btn btn-primary" })
-    </form>
-</nav>
-
-
-@foreach (var item in Model.items)
-{
-    <div class="card" style="margin-top:10px;">
-        <div class="card-body">
-            <h5 class="card-title">@Html.DisplayFor(modelItem => item.title) <small class="text-muted">@Html.DisplayFor(modelItem => item.eventDate)</small></h5>
-            <p class="card-text">@Html.DisplayFor(modelItem => item.description)</p>
-        </div>
-    </div>
-}
-
-@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "myForm" }))
-{
-    <nav aria-label="Page navigation example" style="margin-top:10px;">
-        <ul class="pagination">
-            @for (int i = 0; i < Math.Ceiling((decimal)Model.total / Model.page_size); i++)
-            {
-                int page = i + 1;
-                if (Model.page == i)
-                {
-                    <li class="page-item active">
-                        <a class="page-link" href="#" onclick="PostPage(@i)">@page</a>
-                    </li>
-                }
-                else
-                {
-                    <li class="page-item"><a class="page-link" href="#" onclick="PostPage(@i)">@page</a></li>
-                }
-            }
-        </ul>
+    <nav class="navbar navbar-light bg-light">
+        @Html.ActionLink("Calendar Events", "Index", null, new { @class = "navbar-brand" })
+        <form class="form-inline">
+            @Html.ActionLink("New", "Create", null, new { @class = "btn btn-primary" })
+        </form>
     </nav>
 
-    @Html.HiddenFor(modelItem => modelItem.page, new { id = "page", name = "page" })
-}
 
-@section scripts {
+    @foreach (var item in Model.items)
+    {
+        <div class="card" style="margin-top:10px;">
+            <div class="card-body">
+                <h5 class="card-title">@Html.DisplayFor(modelItem => item.title) <small class="text-muted">@Html.DisplayFor(modelItem => item.eventDate)</small></h5>
+                <p class="card-text">@Html.DisplayFor(modelItem => item.description)</p>
+            </div>
+        </div>
+    }
 
-    <script>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "myForm" }))
+    {
+        <nav aria-label="Page navigation example" style="margin-top:10px;">
+            <ul class="pagination">
+                @for (int i = 0; i < Math.Ceiling((decimal)Model.total / Model.page_size); i++)
+                {
+                    int page = i + 1;
+                    if (Model.page == i)
+                    {
+                        <li class="page-item active">
+                            <a class="page-link" href="#" onclick="PostPage(@i)">@page</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item"><a class="page-link" href="#" onclick="PostPage(@i)">@page</a></li>
+                    }
+                }
+            </ul>
+        </nav>
 
-        function PostPage(page) {
-            $("#page").val(page);
-            $("#myForm").submit();
-        }
+        @Html.HiddenFor(modelItem => modelItem.page, new { id = "page", name = "page" })
+    }
 
-    </script>
-}
+    @section scripts {
+
+        <script>
+
+            function PostPage(page) {
+                $("#page").val(page);
+                $("#myForm").submit();
+            }
+
+        </script>
+    }
 

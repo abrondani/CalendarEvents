@@ -1,62 +1,59 @@
-﻿using RestSharp;
+﻿using CalendarEvents.Models;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
+using System.Web.Caching;
 using System.Web.Mvc;
-using WebApplication6.Models;
 
-namespace WebApplication6.Controllers
+namespace CalendarEvents.Controllers
 {
+    /// <summary>
+    /// Controller for Calendar Events
+    /// </summary>
     public class HomeController : Controller
     {
-        int _page_size;
-
-        public HomeController()
-        {
-            _page_size = int.Parse(ConfigurationManager.AppSettings["PageSize"]);
-        }
-
+        /// <summary>
+        /// Show empty Create view.
+        /// </summary>
         public ActionResult Create()
         {
             return View();
         }
 
+        /// <summary>
+        /// Show calendar events for the first time.
+        /// </summary>
         public async Task<ActionResult> Index()
         {
-            var data = await GetData();
+            var token = await GetTokenCache();
+            var data = await ApiEvents.GetEvents(token);
             return View(data);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Index(events_model model)
+        /// <summary>
+        /// Show calendar events for paging.
+        /// </summary>
+        public async Task<ActionResult> Index(EventsModel model)
         {
-            var data = await GetData(model.page * model.page_size);
+            var token = await GetTokenCache();
+            var data = await ApiEvents.GetEvents(token, model.page * model.page_size);
             data.page = model.page;
             return View(data);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(event_model model)
+        /// <summary>
+        /// Create a new event and redirects to Index view if successfull or show error if not.
+        /// </summary>
+        public async Task<ActionResult> Create(EventModel model)
         {
-            var token = await GetTokenCookie();
+            var token = await GetTokenCache();
+            var result = await ApiEvents.CreateEvent(token, model);
 
-            var client = new RestClient("https://interview.cpdv.ninja/eb3dd05a-2d79-48d3-9385-66c6300ce6f3/");
-
-            var request = new RestRequest("api/Events", Method.POST);
-            request.AddHeader("Authorization", $"Bearer {token}");
-
-            model.id = Guid.NewGuid();
-            request.AddJsonBody(model);
-
-            var response = await client.ExecuteTaskAsync<event_model>(request);
-
-            if (!response.IsSuccessful)
+            if (result.statusCode != 0)
             {
-                foreach (var item in response.Data.details)
-                    ModelState.AddModelError(response.Data.details.IndexOf(item).ToString(), item);
+                foreach (var item in result.details)
+                    ModelState.AddModelError(string.Empty, item);
 
                 return View();
             }
@@ -64,48 +61,19 @@ namespace WebApplication6.Controllers
                 return RedirectToAction("Index");
         }
 
-        async Task<events_model> GetData(int skip = 0)
+        /// <summary>
+        /// Check whether access_token cache is created and stores if not.
+        /// </summary>
+        async Task<string> GetTokenCache()
         {
-            var token = await GetTokenCookie();
-            var client = new RestClient("https://interview.cpdv.ninja/eb3dd05a-2d79-48d3-9385-66c6300ce6f3/");
-
-            var request = new RestRequest("api/Events");
-            request.AddHeader("Authorization", $"Bearer {token}");
-            request.AddParameter("$top", _page_size);
-            request.AddParameter("$skip", skip);
-
-            var response = await client.ExecuteTaskAsync<events_model>(request);
-            return response.Data;
-        }
-
-        async Task<string> GetTokenCookie()
-        {
-            var token_cookie = Request.Cookies.Get("access_token");
-            if (token_cookie == null)
+            var tokenCache = (Token)HttpContext.Cache.Get("access_token");
+            if (tokenCache == null)
             {
-                var token = await GetToken();
-                token_cookie = new System.Web.HttpCookie("access_token", token.access_token);
-                token_cookie.Expires = DateTime.Now.AddSeconds(token.expires_in);
-                Response.Cookies.Add(token_cookie);
+                tokenCache = await ApiEvents.GetToken();
+                HttpContext.Cache.Add("access_token", tokenCache, null, DateTime.Now.AddSeconds(tokenCache.expires_in),
+                    Cache.NoSlidingExpiration, CacheItemPriority.AboveNormal, null);
             }
-            return token_cookie.Value;
-        }
-
-        async Task<token> GetToken()
-        {
-            var client = new RestClient("https://interview.cpdv.ninja/eb3dd05a-2d79-48d3-9385-66c6300ce6f3/");
-
-            var request = new RestRequest("api/Auth");
-            request.AddHeader("Accept", "application/json");
-            request.AddHeader("Content-Type", "application/json-patch+json");
-
-            request.AddJsonBody(new { clientId = "eb3dd05a-2d79-48d3-9385-66c6300ce6f3", clientSecret = "QpWuT28m3AdbsAUGwjDy1GK4Yub0PMjZYqdoEIqwWTQ=" });
-
-            var response = await client.ExecutePostTaskAsync<token>(request);
-            if (!response.IsSuccessful)
-                throw new Exception(response.ErrorMessage);
-
-            return response.Data;
+            return tokenCache.access_token;
         }
     }
 }

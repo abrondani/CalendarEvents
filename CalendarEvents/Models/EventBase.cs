@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 
-namespace WebApplication6.Models
+namespace CalendarEvents.Models
 {
-    public class event_base
+    public class EventBase
     {
         public string message { get; set; }
 

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
-namespace WebApplication6.Models
+namespace CalendarEvents.Models
 {
-    public class token : event_base
+    public class Token : EventBase
     {
         public string access_token { get; set; }
 

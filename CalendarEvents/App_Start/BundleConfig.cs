@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace WebApplication6
+namespace CalendarEvents
 {
     public class BundleConfig
     {
